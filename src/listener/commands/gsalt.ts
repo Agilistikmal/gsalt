@@ -3,6 +3,7 @@ import {
   EmbedBuilder,
   CommandInteraction,
 } from "discord.js";
+import { getTopGsalt } from "../../lib/database/util/gsalt";
 
 const command = {
   command: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ const command = {
     .addStringOption((option) => {
       return option.setName("action").setDescription("Choose action");
     }),
-  execute: (interaction: CommandInteraction) => {
+  execute: async (interaction: CommandInteraction) => {
     const action =
       interaction.options.get("action")?.value?.toString().toLowerCase() ||
       "help";
@@ -42,16 +43,7 @@ const command = {
         });
         break;
       case "top":
-        const top = [
-          {
-            user_id: "287539662614953985",
-            balance: "300",
-          },
-          {
-            user_id: "969812918403223562",
-            balance: "200",
-          },
-        ];
+        const top = await getTopGsalt();
 
         const embed = new EmbedBuilder()
           .setTitle("GSalt Top Balance")
@@ -61,7 +53,7 @@ const command = {
         top.forEach((t, index) => {
           embed.addFields({
             name: `${index + 1}. ${
-              interaction.guild?.members.cache.get(t.user_id)?.user.tag
+              interaction.client.users.cache.get(t.user_id)?.tag || t.user_id
             }`,
             value: `\`🧂 ${t.balance} gsalt\``,
           });

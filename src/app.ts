@@ -1,9 +1,19 @@
 import { Client, Collection } from "discord.js";
 import { config } from "dotenv";
 import { readdirSync } from "fs";
+import mongoose from "mongoose";
 import { join } from "path";
 
 config();
+
+mongoose
+  .connect(process.env.MONGODB_CONNECTION_STRING as string, {
+    // @ts-ignore
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to mongodb database"))
+  .catch((err: Error) => console.log(err));
 
 const bot = new Client({
   intents: ["Guilds", "MessageContent", "GuildMessages", "GuildMembers"],
