@@ -2,6 +2,10 @@ import {
   SlashCommandBuilder,
   EmbedBuilder,
   CommandInteraction,
+  ModalBuilder,
+  ActionRowBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 import { getTopGsalt } from "../../lib/database/util/gsalt";
 
@@ -10,6 +14,12 @@ const command = {
     .setName("gsalt")
     .setDescription("GSalt commands.")
     .addStringOption((option) => {
+      option.addChoices(
+        { name: "Help", value: "help" },
+        { name: "Top", value: "top" },
+        { name: "Transfer", value: "transfer" },
+        { name: "Withdraw", value: "withdraw" }
+      );
       return option.setName("action").setDescription("Choose action");
     }),
   execute: async (interaction: CommandInteraction) => {
@@ -37,6 +47,26 @@ const command = {
                   value: "Show list top gsalt balance",
                   inline: true,
                 },
+                {
+                  name: " ",
+                  value: " ",
+                  inline: true,
+                },
+                {
+                  name: "🧂 /gsalt transfer",
+                  value: "Transfer your gsalt to another user",
+                  inline: true,
+                },
+                {
+                  name: "🧂 /gsalt withdraw",
+                  value: "Withdraw your gsalt to Bank, or e-Wallet (Rupiah)",
+                  inline: true,
+                },
+                {
+                  name: " ",
+                  value: " ",
+                  inline: true,
+                },
               ])
               .setColor("DarkButNotBlack"),
           ],
@@ -52,15 +82,47 @@ const command = {
 
         top.forEach((t, index) => {
           embed.addFields({
-            name: `${index + 1}. ${
-              interaction.client.users.cache.get(t.user_id)?.tag || t.user_id
-            }`,
-            value: `\`🧂 ${t.balance} gsalt\``,
+            name: `Top ${index + 1}`,
+            value:
+              `${
+                index + 1 == 1
+                  ? "<:guildOwner:1080417844094836800>"
+                  : "<:guildMember:1080416748630704208>"
+              } <@${t.user_id}>` +
+              `\n` +
+              `\`🧂 ${t.balance} gsalt\``,
           });
         });
         interaction.reply({
           embeds: [embed],
         });
+        break;
+      case "transfer":
+        const modal = new ModalBuilder()
+          .setCustomId("transfer")
+          .setTitle("Transfer gsalt balance")
+          .addComponents(
+            // @ts-ignore
+            new ActionRowBuilder().addComponents(
+              new TextInputBuilder()
+                .setCustomId("targetAccountNumber")
+                .setLabel("Target Account Number")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true)
+                .setPlaceholder("Example: 102184")
+            ),
+            new ActionRowBuilder().addComponents(
+              new TextInputBuilder()
+                .setCustomId("amount")
+                .setLabel("Amount")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true)
+                .setPlaceholder("Example: 5")
+            )
+          );
+
+        interaction.showModal(modal);
+        break;
     }
   },
 };

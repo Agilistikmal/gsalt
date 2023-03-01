@@ -13,7 +13,15 @@ const command = {
       embeds: [
         new EmbedBuilder()
           .setTitle("Hello")
-          .setDescription(`Check Ping: ${interaction.client.ws.ping}`)
+          .setDescription(
+            `${
+              interaction.client.ws.ping < 100
+                ? "<:voicePingConnection1:1080416757912707085> "
+                : interaction.client.ws.ping > 300
+                ? "<:voicePingConnection1:1080416757912707085> "
+                : "<:voicePingConnection2:1080416760450273290> "
+            } Check Ping: \`${interaction.client.ws.ping} ms\``
+          )
           .setColor(
             interaction.client.ws.ping < 100
               ? "Green"
