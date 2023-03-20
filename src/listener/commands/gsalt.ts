@@ -7,7 +7,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { getTopGsalt } from "../../lib/database/util/gsalt";
+import { getGsalt, getTopGsalt } from "../../lib/database/util/gsalt";
 
 const command = {
   command: new SlashCommandBuilder()
@@ -31,12 +31,13 @@ const command = {
     switch (action) {
       // Help handler (/gsalt | /gsalt help)
       case "help":
+        const user_gsalt = await getGsalt(interaction.user.id);
         interaction.reply({
           embeds: [
             new EmbedBuilder()
               .setTitle("GSalt Commands Help")
               .setDescription(
-                "GSalt is the currency created for GPrestore. `🧂 10 gsalt` is equal to Rp10.000."
+                `GSalt is the currency created for GPrestore. \`🧂 10 gsalt\` is equal to Rp10.000.\n**Your gsalt balance is** \`🧂 ${user_gsalt}\``
               )
               .setFields([
                 {

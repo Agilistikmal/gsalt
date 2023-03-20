@@ -14,6 +14,7 @@ import {
 import type { BotEvent } from "../../types";
 import randomstring from "randomstring";
 import fs from "fs";
+import { addGsalt, getGsalt } from "../../lib/database/util/gsalt";
 
 const event: BotEvent = {
   name: "interactionCreate",
@@ -78,7 +79,7 @@ const event: BotEvent = {
 
       const components = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setCustomId(`checkStatus-${order_id}`)
+          .setCustomId(`checkStatus-${order_id}-${amount}`)
           .setEmoji("<:guildCheckmark:1080844340143861890>")
           .setLabel("Sudah bayar")
           .setStyle(ButtonStyle.Secondary)
@@ -104,7 +105,9 @@ const event: BotEvent = {
       interaction.isButton() &&
       interaction.customId.includes("checkStatus")
     ) {
-      const order_id = interaction.customId.split("-")[1];
+      const splitted_customId = interaction.customId.split("-");
+      const order_id = splitted_customId[1];
+      const amount = parseInt(splitted_customId[2]);
       const qris: any = await getQris(order_id);
 
       if (qris.status == "ACTIVE") {
@@ -118,12 +121,15 @@ const event: BotEvent = {
           ephemeral: true,
         });
       } else if (qris.status == "INACTIVE") {
+        await addGsalt(interaction.user.id, amount);
+        const user_gsalt = await getGsalt(interaction.user.id);
+
         interaction.reply({
           embeds: [
             new EmbedBuilder()
               .setTitle(`Order ID: ${order_id}`)
               .setDescription(
-                "Status: `SUDAH DIBAYAR`\nTerimakasih, balance gsalt anda saat ini `🧂 50`"
+                `Status: \`SUDAH DIBAYAR\`\nTerimakasih, balance gsalt anda saat ini \`🧂 ${user_gsalt}\``
               )
               .setColor("Green"),
           ],

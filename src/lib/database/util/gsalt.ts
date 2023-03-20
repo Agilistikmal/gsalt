@@ -6,6 +6,29 @@ export async function getTopGsalt(limit: number = 10) {
   return users;
 }
 
+// Get user gsalt balance
+export async function getGsalt(user_id: string) {
+  const user = await UserModel.findOne({ user_id: user_id });
+
+  return user?.balance;
+}
+
+// Add user gsalt balance
+export async function addGsalt(user_id: string, amount: number) {
+  const user = await UserModel.findOne({ user_id: user_id });
+
+  await user?.update({
+    $set: {
+      balance: user.balance + amount,
+    },
+  });
+
+  return {
+    error: false,
+    message: "Success",
+  };
+}
+
 // Transfer gsalt balance from user1 to user2
 export async function transferGsalt(
   from_user_id: string,
